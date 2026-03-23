@@ -17,7 +17,6 @@ AI-powered software engineering assistant for planning, coding, reviewing, testi
 | [DeepCode V2 功能与界面蓝图](docs/05_deepcode_v2_feature_and_ui_blueprint.md) | Product blueprint, interaction design, and target architecture |
 | [DeepCode V2 迭代路线图](docs/06_iteration_roadmap.md) | Iteration roadmap and milestone planning |
 | [DeepCode V2 执行清单](docs/07_execution_checklist.md) | Implementation checklist for execution tracking |
-| [DeepCode 0.2 项目总览与面试指南](docs/09_project_overview_and_interview_guide.md) | 面向简历、面试复盘、系统设计问答与参考答案的完整说明 |
 
 ## Features
 
