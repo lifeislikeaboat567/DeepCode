@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DEEPCODE_LLM_PROVIDER=${DEEPCODE_LLM_PROVIDER:-openai}
+      - DEEPCODE_LLM_MODEL=${DEEPCODE_LLM_MODEL:-gpt-4o-mini}
+      - DEEPCODE_LLM_API_KEY=${DEEPCODE_LLM_API_KEY}
+      - DEEPCODE_DEBUG=${DEEPCODE_DEBUG:-false}
+      - DEEPCODE_DATA_DIR=/data
+    volumes:
+      - deepcode_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ui:
+    build: .
+    command: deepcode ui --port 8501
+    ports:
+      - "8501:8501"
+    environment:
+      - DEEPCODE_LLM_PROVIDER=${DEEPCODE_LLM_PROVIDER:-openai}
+      - DEEPCODE_LLM_MODEL=${DEEPCODE_LLM_MODEL:-gpt-4o-mini}
+      - DEEPCODE_LLM_API_KEY=${DEEPCODE_LLM_API_KEY}
+      - DEEPCODE_API_HOST=api
+      - DEEPCODE_DATA_DIR=/data
+    volumes:
+      - deepcode_data:/data
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  deepcode_data:
