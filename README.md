@@ -405,6 +405,20 @@ All settings use the `DEEPCODE_` prefix.
 | `DEEPCODE_CHAT_BRIDGE_QQ_NAPCAT_ACCESS_TOKEN` | _(empty)_ | Optional NapCat access token |
 | `DEEPCODE_CHAT_BRIDGE_QQ_NAPCAT_WEBHOOK_TOKEN` | _(empty)_ | Optional NapCat inbound webhook token |
 
+## Branding
+
+The official DeepCode logo is located at [`assets/logo.svg`](assets/logo.svg).
+
+![DeepCode logo](assets/logo.svg)
+
+**Design spec:**
+- Background: dark navy circle (`#060C18` → `#0F1A2E` radial gradient)
+- Symbol: geometric capital **D** with cyan to electric-blue to indigo gradient (`#22D3EE` to `#3B82F6` to `#6366F1`)
+- Negative-space `</>` code symbol: cyan `<`, purple `/`, electric-blue `>`
+- Accent: subtle neural-network nodes and circuit traces around the perimeter
+
+The SVG is avatar-friendly and scales cleanly from 16 × 16 to full resolution. Use the vector file for all primary placements; export to PNG only when the target platform does not support SVG.
+
 ## License
 
 MIT © DeepCode Team
