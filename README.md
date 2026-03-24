@@ -1,5 +1,9 @@
 # DeepCode Agent
 
+<p align="center">
+  <img src="assets/logo.svg" alt="DeepCode Agent logo" width="120" height="120"/>
+</p>
+
 AI-powered software engineering assistant for planning, coding, reviewing, testing, platform chat bridging, and web-based runtime operations.
 
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org)

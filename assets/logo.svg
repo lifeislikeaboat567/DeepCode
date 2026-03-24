@@ -1,0 +1,111 @@
+<!--
+  DeepCode – repository avatar logo
+  512 × 512 viewBox, avatar-safe circular composition.
+  Dark navy background · cyan→electric-blue gradient D · </>  in negative space
+  Subtle neural-network nodes · circuit traces · tiny purple accent
+
+  Geometry notes
+  ──────────────
+  In SVG (Y-axis increases downward), sweep-flag=0 produces a
+  counter-clockwise arc on screen, which is what makes the bowl of the
+  letter D open to the RIGHT.  sweep-flag=1 would open it leftward.
+
+  Outer D:  stem x=132–204, bowl centre (204,256), rx=175 ry=165
+            → right extent x=379; geometric x-centre ≈ 255.5 ≈ 256 ✓
+  Inner D:  hollow arc centre (204,256), rx=100 ry=95
+            → top y=161, bottom y=351; bowl-wall ≈ stem width (72 px) ✓
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="DeepCode Agent logo">
+  <defs>
+    <!-- Cyan-to-electric-blue gradient for the D symbol -->
+    <linearGradient id="dGrad" x1="15%" y1="10%" x2="85%" y2="90%">
+      <stop offset="0%" stop-color="#22D3EE"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+
+    <!-- Radial glow used for the tiny purple highlight spot -->
+    <radialGradient id="purpleSpot" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#8B5CF6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- ── Background ─────────────────────────────────────────────── -->
+  <circle cx="256" cy="256" r="252" fill="#0B1120"/>
+
+  <!-- ── Circuit traces (very subtle, behind the D) ────────────── -->
+  <g stroke="#1D4ED8" stroke-width="1.5" fill="none"
+     stroke-linecap="round" stroke-linejoin="round" opacity="0.40">
+    <!-- top-left corner trace -->
+    <polyline points="132,91 100,72 76,72"/>
+    <!-- bottom-left corner trace -->
+    <polyline points="132,421 100,440 76,440"/>
+    <!-- right-side upper trace -->
+    <polyline points="375,222 415,207 435,207"/>
+    <!-- right-side lower trace -->
+    <line x1="375" y1="290" x2="422" y2="290"/>
+  </g>
+
+  <!-- ── Bold geometric D (even-odd hollow) ────────────────────── -->
+  <!--
+    Outer path: stem (x=132–204, y=91–421) + outer bowl arc
+      Arc from (204,421) → right-opening semi-ellipse → (204,91)
+      sweep=0 = counter-clockwise on screen = bowl opens RIGHT ✓
+    Inner path: inner bowl arc creates the hollow
+      Arc from (204,161) → right-opening → (204,351), sweep=0 ✓
+    Even-odd fill rule: interior of inner arc is transparent (hole).
+  -->
+  <path
+    fill="url(#dGrad)"
+    fill-rule="evenodd"
+    d="M 132,91
+       L 132,421
+       L 204,421
+       A 175,165 0 0,0 204,91
+       Z
+       M 204,161
+       A 100,95 0 0,0 204,351
+       Z"
+  />
+
+  <!-- Tiny purple highlight spot at upper-right of the D bowl -->
+  <ellipse cx="337" cy="148" rx="36" ry="30"
+           fill="url(#purpleSpot)" opacity="0.7"/>
+
+  <!-- ── </> coding symbol inside the negative space of D ──────── -->
+  <!--
+    Inner hole spans x=204–304, y=161–351.
+    Symbols centred around x=254, y=256, stroke-width=12.
+  -->
+  <!-- < -->
+  <polyline
+    points="243,218 221,256 243,294"
+    fill="none" stroke="#F0FEFF" stroke-width="12"
+    stroke-linecap="round" stroke-linejoin="round"
+  />
+  <!-- / -->
+  <line
+    x1="252" y1="294" x2="266" y2="218"
+    stroke="#F0FEFF" stroke-width="12" stroke-linecap="round"
+  />
+  <!-- > -->
+  <polyline
+    points="276,218 298,256 276,294"
+    fill="none" stroke="#F0FEFF" stroke-width="12"
+    stroke-linecap="round" stroke-linejoin="round"
+  />
+
+  <!-- ── Neural-network nodes ───────────────────────────────────── -->
+  <!-- Corner anchors of the D stem -->
+  <circle cx="132" cy="91"  r="5.5" fill="#22D3EE"/>
+  <circle cx="132" cy="421" r="5.5" fill="#22D3EE"/>
+  <!-- Points on the outer bowl arc -->
+  <circle cx="375" cy="222" r="4.5" fill="#22D3EE" opacity="0.85"/>
+  <circle cx="375" cy="290" r="4.5" fill="#22D3EE" opacity="0.85"/>
+  <!-- End nodes for the circuit traces -->
+  <circle cx="415" cy="207" r="3"   fill="#22D3EE" opacity="0.65"/>
+  <circle cx="422" cy="290" r="3"   fill="#22D3EE" opacity="0.55"/>
+  <!-- Purple nodes at top and bottom of inner hollow arc -->
+  <circle cx="204" cy="161" r="4"   fill="#8B5CF6" opacity="0.85"/>
+  <circle cx="204" cy="351" r="4"   fill="#8B5CF6" opacity="0.85"/>
+</svg>
