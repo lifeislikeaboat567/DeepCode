@@ -14,6 +14,7 @@ from deepcode.api.platform_bridge import PlatformBridgeResult
 from deepcode.config import Settings
 
 _TOKEN_CACHE: dict[str, tuple[str, float]] = {}
+_QQ_BOT_ACCESS_TOKEN_URL = "https://bots.qq.com/app/getAppAccessToken"
 _NAPCAT_DIRECT_SEGMENT_TYPES = {
     "text",
     "markdown",
@@ -638,7 +639,52 @@ def _qq_send_endpoint(bridge_result: PlatformBridgeResult) -> str:
 
 
 def _has_qq_official_credentials(settings: Settings) -> bool:
-    return bool(_safe_text(settings.chat_bridge_qq_bot_app_id) and _safe_text(settings.chat_bridge_qq_bot_token))
+    return bool(_safe_text(settings.chat_bridge_qq_bot_app_id) and _resolve_qq_bot_app_secret(settings))
+
+
+def _resolve_qq_bot_app_secret(settings: Settings) -> str:
+    # Backward compatibility: old config key chat_bridge_qq_bot_token is treated as app_secret.
+    return _safe_text(settings.chat_bridge_qq_bot_app_secret) or _safe_text(settings.chat_bridge_qq_bot_token)
+
+
+async def _fetch_qq_bot_access_token(
+    client: httpx.AsyncClient,
+    *,
+    settings: Settings,
+) -> tuple[str, str]:
+    app_id = _safe_text(settings.chat_bridge_qq_bot_app_id)
+    app_secret = _resolve_qq_bot_app_secret(settings)
+    if not app_id or not app_secret:
+        return "", "Missing QQ bot app_id/app_secret"
+
+    cache_key = f"qq-official:{app_id}"
+    cached = _cache_get_token(cache_key)
+    if cached:
+        return cached, ""
+
+    response = await client.post(
+        _QQ_BOT_ACCESS_TOKEN_URL,
+        json={
+            "appId": app_id,
+            "clientSecret": app_secret,
+        },
+    )
+    body = _json_or_text(response)
+    if response.status_code >= 400:
+        return "", f"QQ token request failed: HTTP {response.status_code}"
+
+    token = _safe_text(body.get("access_token") or body.get("accessToken"))
+    if not token:
+        message = _safe_text(body.get("message") or body.get("msg") or "unknown error")
+        return "", f"QQ token request failed: {message}"
+
+    expires_in_raw = body.get("expires_in") or body.get("expiresIn") or 7200
+    try:
+        expires_in = max(int(expires_in_raw), 60)
+    except (TypeError, ValueError):
+        expires_in = 7200
+    _cache_set_token(cache_key, token, expires_in)
+    return token, ""
 
 
 def _looks_like_napcat_event(bridge_result: PlatformBridgeResult, payload: dict[str, Any]) -> bool:
@@ -708,13 +754,23 @@ async def _deliver_qq_official_reply(
     payload: dict[str, Any],
 ) -> dict[str, Any]:
     app_id = _safe_text(settings.chat_bridge_qq_bot_app_id)
-    bot_token = _safe_text(settings.chat_bridge_qq_bot_token)
-    if not app_id or not bot_token:
+    app_secret = _resolve_qq_bot_app_secret(settings)
+    if not app_id or not app_secret:
         return {
             "platform": "qq",
             "attempted": False,
             "sent": False,
-            "reason": "Missing QQ bot app_id/token",
+            "reason": "Missing QQ bot app_id/app_secret",
+        }
+
+    access_token, token_error = await _fetch_qq_bot_access_token(client, settings=settings)
+    if token_error:
+        return {
+            "platform": "qq",
+            "mode": "official",
+            "attempted": False,
+            "sent": False,
+            "reason": token_error,
         }
 
     endpoint = _qq_send_endpoint(bridge_result)
@@ -742,7 +798,7 @@ async def _deliver_qq_official_reply(
     response = await client.post(
         f"{base_url.rstrip('/')}{endpoint}",
         headers={
-            "Authorization": f"QQBot {app_id}.{bot_token}",
+            "Authorization": f"QQBot {access_token}",
             "X-Union-Appid": app_id,
         },
         json=request_body,

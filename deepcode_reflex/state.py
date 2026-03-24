@@ -1333,7 +1333,7 @@ class UIState(rx.State):
     platform_bridge_qq_api_base_url: str = "https://api.sgroup.qq.com"
     platform_bridge_qq_delivery_mode: str = "auto"
     platform_bridge_qq_bot_app_id: str = ""
-    platform_bridge_qq_bot_token: str = ""
+    platform_bridge_qq_bot_app_secret: str = ""
     platform_bridge_qq_napcat_api_base_url: str = "http://127.0.0.1:3000"
     platform_bridge_qq_napcat_access_token: str = ""
     platform_bridge_qq_napcat_webhook_token: str = ""
@@ -2901,8 +2901,8 @@ class UIState(rx.State):
     def set_platform_bridge_qq_bot_app_id(self, value: str) -> None:
         self.platform_bridge_qq_bot_app_id = value
 
-    def set_platform_bridge_qq_bot_token(self, value: str) -> None:
-        self.platform_bridge_qq_bot_token = value
+    def set_platform_bridge_qq_bot_app_secret(self, value: str) -> None:
+        self.platform_bridge_qq_bot_app_secret = value
 
     def set_platform_bridge_qq_napcat_api_base_url(self, value: str) -> None:
         self.platform_bridge_qq_napcat_api_base_url = value
@@ -5477,7 +5477,7 @@ class UIState(rx.State):
             "chat_bridge_qq_api_base_url": self.platform_bridge_qq_api_base_url.strip(),
             "chat_bridge_qq_delivery_mode": self.platform_bridge_qq_delivery_mode,
             "chat_bridge_qq_bot_app_id": self.platform_bridge_qq_bot_app_id.strip(),
-            "chat_bridge_qq_bot_token": self.platform_bridge_qq_bot_token.strip(),
+            "chat_bridge_qq_bot_app_secret": self.platform_bridge_qq_bot_app_secret.strip(),
             "chat_bridge_qq_napcat_api_base_url": self.platform_bridge_qq_napcat_api_base_url.strip(),
             "chat_bridge_qq_napcat_access_token": self.platform_bridge_qq_napcat_access_token.strip(),
             "chat_bridge_qq_napcat_webhook_token": self.platform_bridge_qq_napcat_webhook_token.strip(),
@@ -5610,7 +5610,10 @@ class UIState(rx.State):
         qq_mode = str(getattr(settings, "chat_bridge_qq_delivery_mode", "auto")).lower()
         self.platform_bridge_qq_delivery_mode = qq_mode if qq_mode in {"auto", "official", "napcat"} else "auto"
         self.platform_bridge_qq_bot_app_id = str(getattr(settings, "chat_bridge_qq_bot_app_id", ""))
-        self.platform_bridge_qq_bot_token = str(getattr(settings, "chat_bridge_qq_bot_token", ""))
+        self.platform_bridge_qq_bot_app_secret = str(
+            getattr(settings, "chat_bridge_qq_bot_app_secret", "")
+            or getattr(settings, "chat_bridge_qq_bot_token", "")
+        )
         self.platform_bridge_qq_napcat_api_base_url = str(
             getattr(settings, "chat_bridge_qq_napcat_api_base_url", "http://127.0.0.1:3000")
         )

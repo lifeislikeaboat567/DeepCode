@@ -2127,10 +2127,10 @@ def platform_bridge_page() -> rx.Component:
                     UIState.set_platform_bridge_qq_bot_app_id,
                 ),
                 _bridge_field(
-                    "platform_bridge.qq_bot_token_label",
-                    "platform_bridge.qq_bot_token_placeholder",
-                    UIState.platform_bridge_qq_bot_token,
-                    UIState.set_platform_bridge_qq_bot_token,
+                    "platform_bridge.qq_bot_app_secret_label",
+                    "platform_bridge.qq_bot_app_secret_placeholder",
+                    UIState.platform_bridge_qq_bot_app_secret,
+                    UIState.set_platform_bridge_qq_bot_app_secret,
                     input_type="password",
                 ),
                 rx.box(

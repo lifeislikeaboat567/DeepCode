@@ -1,4 +1,4 @@
-"""Persistent session storage using SQLite via SQLAlchemy."""
+"""Persistent session storage using SQLite via raw aiosqlite."""
 
 from __future__ import annotations
 

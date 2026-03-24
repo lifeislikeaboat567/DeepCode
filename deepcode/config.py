@@ -220,11 +220,15 @@ class Settings(BaseSettings):
     )
     chat_bridge_qq_bot_app_id: str = Field(
         default="",
-        description="QQ bot app id used in Authorization header",
+        description="QQ bot app id used to fetch official access_token",
+    )
+    chat_bridge_qq_bot_app_secret: str = Field(
+        default="",
+        description="QQ bot app secret used to fetch official access_token",
     )
     chat_bridge_qq_bot_token: str = Field(
         default="",
-        description="QQ bot token used in Authorization header",
+        description="[Legacy] QQ bot token used in Authorization header",
     )
     chat_bridge_qq_napcat_api_base_url: str = Field(
         default="http://127.0.0.1:3000",
@@ -328,6 +332,7 @@ _CHAT_BRIDGE_RUNTIME_OVERRIDE_KEYS = [
     "chat_bridge_qq_api_base_url",
     "chat_bridge_qq_delivery_mode",
     "chat_bridge_qq_bot_app_id",
+    "chat_bridge_qq_bot_app_secret",
     "chat_bridge_qq_bot_token",
     "chat_bridge_qq_napcat_api_base_url",
     "chat_bridge_qq_napcat_access_token",

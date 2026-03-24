@@ -265,7 +265,7 @@ def _validate_qq_signature(
             return napcat_result
         return PlatformSecurityValidation(ok=True)
 
-    secret = _safe_text(settings.chat_bridge_qq_signing_secret)
+    secret = resolve_qq_signing_secret(settings)
     if not secret:
         return PlatformSecurityValidation(ok=True)
 
@@ -275,6 +275,15 @@ def _validate_qq_signature(
         return _validate_qq_official_ed25519_signature(raw_body=raw_body, headers=headers, secret=secret)
 
     return _validate_qq_legacy_hmac_signature(raw_body=raw_body, payload=payload, headers=headers, secret=secret)
+
+
+def resolve_qq_signing_secret(settings: Settings) -> str:
+    """Resolve QQ official webhook signing secret with backward-compatible fallbacks."""
+    return (
+        _safe_text(getattr(settings, "chat_bridge_qq_signing_secret", ""))
+        or _safe_text(getattr(settings, "chat_bridge_qq_bot_app_secret", ""))
+        or _safe_text(getattr(settings, "chat_bridge_qq_bot_token", ""))
+    )
 
 
 def validate_platform_request_security(

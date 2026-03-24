@@ -21,6 +21,12 @@ from deepcode.api.napcat_inbound_listener import (
     start_napcat_inbound_listener,
     stop_napcat_inbound_listener,
 )
+from deepcode.api.qq_gateway_listener import (
+    get_qq_gateway_listener_status,
+    run_qq_gateway_listener,
+    start_qq_gateway_listener,
+    stop_qq_gateway_listener,
+)
 from deepcode.config import apply_chat_bridge_runtime_overrides, get_settings
 from deepcode.extensions import HookEvent, MCPRegistry, MCPServerConfig, SkillRegistry
 from deepcode.exceptions import SessionNotFoundError, TaskNotFoundError
@@ -571,6 +577,64 @@ def napcat_start(port_arg: int | None, port_opt: int | None, json_output: bool) 
         f"[green]NapCat inbound listener start action:[/] {result.get('action')} ({status_text})"
     )
     console.print(f"Host={result.get('host')} Port={result.get('port')} PID={result.get('pid')}")
+
+
+@main.group("qqgateway")
+def qqgateway_group() -> None:
+    """Manage standalone QQ Official Gateway listener process."""
+
+
+@qqgateway_group.command("status")
+@click.option("--json", "json_output", is_flag=True, help="Print status as JSON")
+def qqgateway_status(json_output: bool) -> None:
+    """Show QQ gateway listener status."""
+    result = get_qq_gateway_listener_status(get_settings())
+    if json_output:
+        console.print(json.dumps(result, ensure_ascii=False, indent=2))
+        return
+
+    status_text = "running" if result.get("running") else "stopped"
+    console.print(f"[cyan]QQ gateway listener:[/] {status_text}")
+    console.print(f"PID={result.get('pid')} managed={result.get('managed')}")
+    console.print(f"Log={result.get('log_file')}")
+    if not result.get("credentials_ready"):
+        console.print("[yellow]Missing credentials: set QQ AppID/AppSecret in platform bridge settings.[/]")
+
+
+@qqgateway_group.command("start")
+@click.option("--json", "json_output", is_flag=True, help="Print status as JSON")
+def qqgateway_start(json_output: bool) -> None:
+    """Start standalone QQ gateway listener process."""
+    result = start_qq_gateway_listener(get_settings())
+    if json_output:
+        console.print(json.dumps(result, ensure_ascii=False, indent=2))
+        return
+
+    status_text = "running" if result.get("running") else "not-running"
+    console.print(f"[green]QQ gateway listener start action:[/] {result.get('action')} ({status_text})")
+    if result.get("reason"):
+        console.print(f"[yellow]{result.get('reason')}[/]")
+
+
+@qqgateway_group.command("stop")
+@click.option("--json", "json_output", is_flag=True, help="Print status as JSON")
+def qqgateway_stop(json_output: bool) -> None:
+    """Stop standalone QQ gateway listener process."""
+    result = stop_qq_gateway_listener(get_settings())
+    if json_output:
+        console.print(json.dumps(result, ensure_ascii=False, indent=2))
+        return
+
+    status_text = "running" if result.get("running") else "stopped"
+    console.print(f"[yellow]QQ gateway listener stop action:[/] {result.get('action')} ({status_text})")
+
+
+@qqgateway_group.command("run")
+@click.option("--skip-preflight", is_flag=True, help="Skip environment checks before command execution")
+def qqgateway_run(skip_preflight: bool) -> None:
+    """Run QQ gateway listener in foreground (used by qqgateway start)."""
+    _enforce_preflight(target="serve", skip_preflight=skip_preflight)
+    run_qq_gateway_listener(get_settings())
 
 
 @main.command()

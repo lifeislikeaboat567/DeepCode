@@ -50,6 +50,27 @@ def test_parse_qq_file_only_segment_is_still_message_event() -> None:
     assert parsed.message_kind == "napcat.group"
 
 
+def test_parse_qq_gateway_c2c_openid_event() -> None:
+    payload = {
+        "id": "qq-gw-event-1",
+        "t": "C2C_MESSAGE_CREATE",
+        "d": {
+            "id": "qq-gw-msg-1",
+            "content": "hello from c2c gateway",
+            "author": {
+                "user_openid": "openid-c2c-1001",
+            },
+        },
+    }
+
+    parsed = parse_platform_event("qq", payload)
+
+    assert parsed.event_type == "message"
+    assert parsed.external_user_id == "openid-c2c-1001"
+    assert parsed.text == "hello from c2c gateway"
+    assert parsed.message_kind == "c2c_message_create"
+
+
 def test_resolve_napcat_outbound_message_from_json_segments() -> None:
     bridge_result = PlatformBridgeResult(
         ok=True,

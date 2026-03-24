@@ -340,8 +340,14 @@ def _parse_qq_payload(payload: dict[str, Any]) -> ParsedPlatformEvent:
 
         user_id = _safe_text(
             author.get("id")
+            or author.get("user_openid")
+            or author.get("member_openid")
             or member_user.get("id")
+            or member_user.get("user_openid")
+            or member_user.get("member_openid")
             or data.get("user_id")
+            or data.get("openid")
+            or data.get("member_openid")
             or payload.get("user_id")
         )
         channel_id = _safe_text(

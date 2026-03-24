@@ -907,6 +907,48 @@ class TestPlatformBridgeEndpoints:
         assert payload["event_type"] == "message"
         assert payload["reply_text"] == "Test response"
 
+    def test_platform_bridge_qq_signature_validation_fallback_to_app_secret(self, client: TestClient, monkeypatch):
+        if Ed25519PrivateKey is None:
+            pytest.skip("cryptography is required for QQ signature tests")
+
+        app_secret = "qq-app-secret"
+        settings = Settings(
+            chat_bridge_enabled=True,
+            chat_bridge_allowed_platforms="generic,qq,wechat,feishu",
+            chat_bridge_verify_token="",
+            chat_bridge_qq_signing_secret="",
+            chat_bridge_qq_bot_app_id="102146862",
+            chat_bridge_qq_bot_app_secret=app_secret,
+        )
+        monkeypatch.setattr("deepcode.api.routes.platforms.get_settings", lambda: settings)
+        monkeypatch.setattr("deepcode.api.routes.platforms.apply_chat_bridge_runtime_overrides", lambda _: None)
+
+        uniq = str(time.time_ns())
+        raw = (
+            "{"
+            f"\"user_id\":\"qq-user-app-secret-{uniq}\","
+            f"\"channel_id\":\"qq-group-{uniq}\","
+            f"\"message_id\":\"qq-msg-{uniq}\","
+            "\"message\":\"hello from qq app secret\""
+            "}"
+        )
+        timestamp = str(int(time.time()))
+        signature = _qq_sign_event_payload(app_secret, timestamp, raw)
+        response = client.post(
+            "/api/v1/platforms/qq/events",
+            headers={
+                "Content-Type": "application/json",
+                "X-Signature-Ed25519": signature,
+                "X-Signature-Timestamp": timestamp,
+            },
+            content=raw,
+        )
+
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["event_type"] == "message"
+        assert payload["reply_text"] == "Test response"
+
     def test_platform_bridge_qq_napcat_accepts_query_access_token(self, client: TestClient, monkeypatch):
         settings = Settings(
             chat_bridge_enabled=True,
@@ -1100,6 +1142,47 @@ class TestPlatformBridgeEndpoints:
         payload = response.json()
         assert payload["plain_token"] == plain_token
         assert payload["signature"] == _qq_sign_validation_payload(secret, event_ts, plain_token)
+
+    def test_platform_bridge_qq_callback_url_validation_op13_fallback_to_app_secret(self, client: TestClient, monkeypatch):
+        if Ed25519PrivateKey is None:
+            pytest.skip("cryptography is required for QQ signature tests")
+
+        app_secret = "qq-app-secret-op13"
+        settings = Settings(
+            chat_bridge_enabled=True,
+            chat_bridge_allowed_platforms="generic,qq,wechat,feishu",
+            chat_bridge_verify_token="",
+            chat_bridge_qq_signing_secret="",
+            chat_bridge_qq_bot_app_id="102146862",
+            chat_bridge_qq_bot_app_secret=app_secret,
+        )
+        monkeypatch.setattr("deepcode.api.routes.platforms.get_settings", lambda: settings)
+        monkeypatch.setattr("deepcode.api.routes.platforms.apply_chat_bridge_runtime_overrides", lambda _: None)
+
+        plain_token = "token-verify-app-secret"
+        event_ts = "1725442342"
+        raw = (
+            "{"
+            "\"op\":13,"
+            f"\"d\":{{\"plain_token\":\"{plain_token}\",\"event_ts\":\"{event_ts}\"}}"
+            "}"
+        )
+        timestamp = str(int(time.time()))
+        signature = _qq_sign_event_payload(app_secret, timestamp, raw)
+        response = client.post(
+            "/api/v1/platforms/qq/events",
+            headers={
+                "Content-Type": "application/json",
+                "X-Signature-Ed25519": signature,
+                "X-Signature-Timestamp": timestamp,
+            },
+            content=raw,
+        )
+
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["plain_token"] == plain_token
+        assert payload["signature"] == _qq_sign_validation_payload(app_secret, event_ts, plain_token)
 
     def test_platform_bridge_feishu_message_kind_and_response_payload(self, client: TestClient):
         uniq = str(time.time_ns())

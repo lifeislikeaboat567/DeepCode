@@ -19,6 +19,7 @@ from deepcode.api.platform_delivery import send_platform_callback_if_configured
 from deepcode.api.platform_security import (
     build_qq_callback_validation_signature,
     extract_qq_callback_validation_fields,
+    resolve_qq_signing_secret,
     validate_platform_request_security,
 )
 from deepcode.config import apply_chat_bridge_runtime_overrides, get_settings
@@ -288,15 +289,16 @@ async def platform_event(
             qq_validation = extract_qq_callback_validation_fields(payload)
             if qq_validation is not None:
                 plain_token, event_ts = qq_validation
+                signing_secret = resolve_qq_signing_secret(settings)
                 signature = build_qq_callback_validation_signature(
-                    secret=settings.chat_bridge_qq_signing_secret,
+                    secret=signing_secret,
                     event_ts=event_ts,
                     plain_token=plain_token,
                 )
                 if not signature:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
-                        detail="QQ callback validation requires chat_bridge_qq_signing_secret",
+                        detail="QQ callback validation requires signing secret or bot app secret",
                     )
 
                 response_content = {

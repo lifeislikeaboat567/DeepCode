@@ -1,5 +1,7 @@
 # DeepCode Agent
 
+[中文说明](README.zh-CN.md)
+
 AI-powered software engineering assistant for planning, coding, reviewing, testing, platform chat bridging, and web-based runtime operations.
 
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org)
@@ -25,7 +27,7 @@ AI-powered software engineering assistant for planning, coding, reviewing, testi
 - CLI control plane: doctor, run, session/task/artifact management, governance, extension registry
 - REST API with OpenAPI docs, streaming chat, task orchestration, and health endpoints
 - Platform bridge: unified inbound normalization for generic, QQ, WeChat, and Feishu
-- QQ dual delivery path: official bot API or NapCat / OneBot send_msg callback delivery
+- QQ dual delivery path: official bot API + official Gateway listener, or NapCat / OneBot send_msg callback delivery
 - Web console built on Reflex for runtime operations, configuration, governance, and extension management
 - Persistent state: SQLite runtime data and vector memory integration
 - Governance and audit trail for critical runtime operations
@@ -114,6 +116,11 @@ deepcode run --stream "Build a REST API for a todo list"
 # start API server
 deepcode serve
 
+# manage official QQ gateway listener
+deepcode qqgateway start
+deepcode qqgateway status
+deepcode qqgateway stop
+
 # start standalone NapCat inbound listener
 deepcode napcat -p 18000
 
@@ -126,14 +133,88 @@ deepcode inbound stop
 deepcode ui
 ```
 
-## NapCat / QQ Integration
+## QQ Integration (Official Bot + NapCat)
 
 DeepCode 0.2 supports two QQ outbound delivery modes:
 
 - `official`: reply through QQ official bot OpenAPI
 - `napcat`: reply through NapCat / OneBot `send_msg`
 
+In this update, official QQ Bot supports AppID + AppSecret credentials and an official Gateway listener process.
+
+### Official QQ Bot Quick Start (AppID + AppSecret)
+
+### Step 1: Configure Environment Variables
+
+```bash
+DEEPCODE_CHAT_BRIDGE_ENABLED=true
+DEEPCODE_CHAT_BRIDGE_ALLOWED_PLATFORMS=qq
+DEEPCODE_CHAT_BRIDGE_DEFAULT_MODE=agent
+
+# enable async callback delivery back to QQ
+DEEPCODE_CHAT_BRIDGE_CALLBACK_DELIVERY_ENABLED=true
+
+# QQ outbound via Official Bot API
+DEEPCODE_CHAT_BRIDGE_QQ_DELIVERY_MODE=official
+DEEPCODE_CHAT_BRIDGE_QQ_BOT_APP_ID=<your_app_id>
+DEEPCODE_CHAT_BRIDGE_QQ_BOT_APP_SECRET=<your_app_secret>
+
+# optional: explicit Ed25519 verification secret for webhook signature checks
+DEEPCODE_CHAT_BRIDGE_QQ_SIGNING_SECRET=
+```
+
+Notes:
+
+- `DEEPCODE_CHAT_BRIDGE_QQ_BOT_APP_ID` + `DEEPCODE_CHAT_BRIDGE_QQ_BOT_APP_SECRET` are the primary official credentials.
+- DeepCode exchanges these credentials for `access_token` automatically.
+- If `DEEPCODE_CHAT_BRIDGE_QQ_SIGNING_SECRET` is empty, DeepCode falls back to AppSecret for QQ signature verification.
+
+### Step 2: Open Official Gateway Listener
+
+Use the built-in QQ gateway lifecycle commands:
+
+```bash
+deepcode qqgateway start
+deepcode qqgateway status
+deepcode qqgateway stop
+```
+
+Fallback module entry:
+
+```bash
+python -m deepcode qqgateway start
+python -m deepcode qqgateway status
+python -m deepcode qqgateway stop
+```
+
+If you want to run in the foreground for debugging:
+
+```bash
+deepcode qqgateway run --skip-preflight
+```
+
+### Step 3: Validate Official Path
+
+```bash
+deepcode qqgateway status
+deepcode qqgateway status --json-output
+```
+
+Expected signals:
+
+- `running=true`
+- `credentials_ready=true`
+- log file path is present (for example: `~/.deepcode/qq_gateway_listener.log`)
+
+### Step 4: Official Mode Troubleshooting
+
+- `missing_credentials`: check `DEEPCODE_CHAT_BRIDGE_QQ_BOT_APP_ID` and `DEEPCODE_CHAT_BRIDGE_QQ_BOT_APP_SECRET`
+- gateway reconnect loops: verify QQ Open Platform app status, network egress, and system clock
+- inbound arrives but no reply: inspect `qq_gateway_listener.log` for `bridge_event_type` and `reply sent` logs
+
 If your QQ bot stack is based on NapCat, use the configuration below.
+
+### NapCat Quick Start
 
 ### Step 1: Configure Environment Variables
 
