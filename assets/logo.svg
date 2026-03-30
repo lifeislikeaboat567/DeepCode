@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" role="img" aria-label="DeepCode logo">
+  <title>DeepCode</title>
+  <defs>
+    <!-- Dark navy radial background gradient -->
+    <radialGradient id="bgGrad" cx="42%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#0F1A2E"/>
+      <stop offset="100%" stop-color="#060C18"/>
+    </radialGradient>
+
+    <!-- Cyan → electric-blue → indigo gradient for the D letterform -->
+    <linearGradient id="dGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#22D3EE"/>
+      <stop offset="55%"  stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+
+    <!-- Soft glow applied to the D shape -->
+    <filter id="dGlow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2.2" result="blur"/>
+      <feFlood flood-color="#22D3EE" flood-opacity="0.28" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- ── Background circle ─────────────────────────────── -->
+  <circle cx="50" cy="50" r="49" fill="url(#bgGrad)"/>
+  <!-- Subtle inner ring for depth -->
+  <circle cx="50" cy="50" r="48.5" fill="none" stroke="#1B3A5C" stroke-width="0.6" opacity="0.45"/>
+
+  <!-- ── Letter D (outer filled shape) ─────────────────── -->
+  <!--
+    Outer D: left stem from (27,20) to (27,80),
+    top bar to (45,20), right semicircle r=30 sweeping to (45,80),
+    bottom bar back to (27,80).
+  -->
+  <path d="M 27,20 L 45,20 A 30,30 0 0 1 45,80 L 27,80 Z"
+        fill="url(#dGrad)" filter="url(#dGlow)"/>
+
+  <!-- ── Letter D (inner cutout — negative space) ──────── -->
+  <!--
+    Inner cutout: left edge x=36, top/bottom y=30/70,
+    right semicircle r=20 from (46,30) to (46,70).
+    Fills with the background colour, exposing the dark circle beneath.
+  -->
+  <path d="M 36,30 L 46,30 A 20,20 0 0 1 46,70 L 36,70 Z"
+        fill="#060C18"/>
+
+  <!-- ── Code symbol </> inside the negative space ──────── -->
+  <!-- < bracket — cyan -->
+  <polyline points="44,43 39,50 44,57"
+            stroke="#22D3EE" stroke-width="2.8" fill="none"
+            stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- / slash — purple highlight (top-right to bottom-left, mirroring a forward-slash glyph) -->
+  <line x1="51" y1="40" x2="48" y2="60"
+        stroke="#8B5CF6" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- > bracket — electric blue -->
+  <polyline points="56,43 61,50 56,57"
+            stroke="#3B82F6" stroke-width="2.8" fill="none"
+            stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- ── Neural-network nodes (surrounding the D) ─────── -->
+  <!-- Top-right cluster -->
+  <circle cx="75" cy="16" r="2"   fill="#22D3EE" opacity="0.55"/>
+  <circle cx="84" cy="27" r="1.5" fill="#3B82F6" opacity="0.45"/>
+  <circle cx="80" cy="10" r="1.4" fill="#8B5CF6" opacity="0.40"/>
+  <!-- Right-side nodes -->
+  <circle cx="87" cy="41" r="2"   fill="#22D3EE" opacity="0.45"/>
+  <circle cx="88" cy="57" r="1.8" fill="#3B82F6" opacity="0.40"/>
+  <circle cx="84" cy="72" r="2"   fill="#22D3EE" opacity="0.45"/>
+  <!-- Bottom cluster -->
+  <circle cx="74" cy="83" r="1.5" fill="#3B82F6" opacity="0.40"/>
+  <circle cx="58" cy="89" r="1.8" fill="#22D3EE" opacity="0.45"/>
+  <circle cx="41" cy="87" r="1.4" fill="#8B5CF6" opacity="0.35"/>
+  <!-- Top-left cluster -->
+  <circle cx="29" cy="10" r="1.3" fill="#22D3EE" opacity="0.30"/>
+  <circle cx="43" cy="13" r="1.5" fill="#3B82F6" opacity="0.35"/>
+  <!-- Left-side nodes -->
+  <circle cx="17" cy="37" r="1.5" fill="#8B5CF6" opacity="0.30"/>
+  <circle cx="14" cy="52" r="1.8" fill="#3B82F6" opacity="0.35"/>
+  <circle cx="18" cy="68" r="1.4" fill="#22D3EE" opacity="0.30"/>
+
+  <!-- ── Circuit traces connecting the nodes ───────────── -->
+  <!-- Top-right arc path -->
+  <line x1="80" y1="10" x2="75" y2="16"  stroke="#8B5CF6" stroke-width="0.7" opacity="0.28"/>
+  <line x1="75" y1="16" x2="84" y2="27"  stroke="#22D3EE" stroke-width="0.7" opacity="0.28"/>
+  <line x1="84" y1="27" x2="87" y2="41"  stroke="#3B82F6" stroke-width="0.7" opacity="0.26"/>
+  <line x1="87" y1="41" x2="88" y2="57"  stroke="#22D3EE" stroke-width="0.7" opacity="0.26"/>
+  <line x1="88" y1="57" x2="84" y2="72"  stroke="#3B82F6" stroke-width="0.7" opacity="0.26"/>
+  <line x1="84" y1="72" x2="74" y2="83"  stroke="#22D3EE" stroke-width="0.7" opacity="0.26"/>
+  <line x1="74" y1="83" x2="58" y2="89"  stroke="#3B82F6" stroke-width="0.7" opacity="0.24"/>
+  <line x1="58" y1="89" x2="41" y2="87"  stroke="#8B5CF6" stroke-width="0.7" opacity="0.24"/>
+  <!-- Top bar trace -->
+  <line x1="29" y1="10" x2="43" y2="13"  stroke="#22D3EE" stroke-width="0.7" opacity="0.22"/>
+  <line x1="43" y1="13" x2="75" y2="16"  stroke="#3B82F6" stroke-width="0.7" opacity="0.20"/>
+  <!-- Left side traces -->
+  <line x1="17" y1="37" x2="14" y2="52"  stroke="#8B5CF6" stroke-width="0.7" opacity="0.22"/>
+  <line x1="14" y1="52" x2="18" y2="68"  stroke="#3B82F6" stroke-width="0.7" opacity="0.22"/>
+</svg>
